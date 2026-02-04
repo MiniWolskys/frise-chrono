@@ -75,7 +75,8 @@ const MONTHS_FR = [
     { value: 10, label: "Octobre" }, { value: 11, label: "Novembre" }, { value: 12, label: "Décembre" },
 ];
 
-const CANVAS_PAD = { left: 70, right: 50, top: 45, bottom: 65 };
+const CANVAS_PAD = { left: 70, right: 50, top: 30, bottom: 65 };
+const TITLE_HEIGHT = 40;
 const ROW_HEIGHT = 80;
 const BAR_HEIGHT = 28;
 const BASE_CANVAS_HEIGHT = 150;
@@ -315,15 +316,7 @@ function renderTimeline(ctx, W, H, config, events, palette, images, title) {
     ctx.fillStyle = palette.surface;
     ctx.fillRect(0, 0, W, H);
 
-    // Title
-    if (title) {
-        ctx.fillStyle = palette.text;
-        ctx.font = `600 16px ${font}`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "top";
-        ctx.fillText(title, W / 2, 14);
-    }
-
+    const titleH = title ? TITLE_HEIGHT : 0;
     const axisY = H - CANVAS_PAD.bottom;
     const axisLeft = CANVAS_PAD.left;
     const axisRight = W - CANVAS_PAD.right;
@@ -511,6 +504,17 @@ function renderTimeline(ctx, W, H, config, events, palette, images, title) {
             ctx.restore();
         }
     });
+
+    // Title section — drawn last so it's always above event content
+    if (title) {
+        ctx.fillStyle = palette.surface;
+        ctx.fillRect(0, 0, W, titleH);
+        ctx.fillStyle = palette.text;
+        ctx.font = `600 16px ${font}`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(title, W / 2, titleH / 2);
+    }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -1040,7 +1044,8 @@ export default function TimelineApp() {
         return layout.length > 0 ? Math.max(...layout.map(ev => ev.row)) + 1 : 0;
     }, [events, config, canvasWidth, isConfigValid]);
 
-    const canvasHeight = BASE_CANVAS_HEIGHT + numEventRows * ROW_HEIGHT;
+    const titleH = title.trim() ? TITLE_HEIGHT : 0;
+    const canvasHeight = BASE_CANVAS_HEIGHT + numEventRows * ROW_HEIGHT + titleH;
 
     useEffect(() => {
         const el = containerRef.current;
