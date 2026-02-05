@@ -435,6 +435,22 @@ function renderTimeline(ctx, W, H, config, events, palette, images, title) {
             if (title !== ev.title) title += "…";
             ctx.fillText(title, ev.x + 7, rowY + BAR_HEIGHT / 2);
 
+            // Date below title
+            const dateStr = formatFlexDate(ev.startDate) + (ev.endDate ? " → " + formatFlexDate(ev.endDate) : "");
+            ctx.fillStyle = palette.textLight;
+            ctx.font = `400 10px ${font}`;
+            ctx.textAlign = "left";
+            ctx.textBaseline = "top";
+            let dateY = rowY + BAR_HEIGHT + 3;
+            const maxDateW = barW - 14;
+            if (maxDateW > 20) {
+                let dateTrunc = dateStr;
+                while (ctx.measureText(dateTrunc).width > maxDateW && dateTrunc.length > 1) dateTrunc = dateTrunc.slice(0, -1);
+                if (dateTrunc !== dateStr) dateTrunc += "…";
+                ctx.fillText(dateTrunc, ev.x + 7, dateY);
+                dateY += 14;
+            }
+
             if (ev.description) {
                 ctx.fillStyle = palette.textMuted;
                 ctx.font = `400 10px ${font}`;
@@ -442,9 +458,9 @@ function renderTimeline(ctx, W, H, config, events, palette, images, title) {
                 ctx.textBaseline = "top";
                 const maxDescW = barW - 14;
                 if (maxDescW > 20) {
-                    const descLines = wrapText(ctx, ev.description, maxDescW, 3);
+                    const descLines = wrapText(ctx, ev.description, maxDescW, 2);
                     descLines.forEach((line, i) => {
-                        ctx.fillText(line, ev.x + 7, rowY + BAR_HEIGHT + 3 + i * 14);
+                        ctx.fillText(line, ev.x + 7, dateY + i * 14);
                     });
                 }
             }
@@ -467,21 +483,36 @@ function renderTimeline(ctx, W, H, config, events, palette, images, title) {
             ctx.lineWidth = 2;
             ctx.stroke();
 
+            const textX = ev.x + 14;
+            const maxTextW = Math.min(200, W - CANVAS_PAD.right - textX);
+
             ctx.fillStyle = palette.text;
             ctx.font = `500 12px ${font}`;
             ctx.textAlign = "left";
-            ctx.textBaseline = "middle";
-            ctx.fillText(ev.title, ev.x + 14, rowY + BAR_HEIGHT / 2);
+            ctx.textBaseline = "top";
+            const titleLines = wrapText(ctx, ev.title, maxTextW, 2);
+            let textY = rowY + BAR_HEIGHT / 2 - 6;
+            titleLines.forEach((line, i) => {
+                ctx.fillText(line, textX, textY + i * 14);
+            });
+            textY += titleLines.length * 14 + 2;
+
+            // Date below title
+            const dateStr = formatFlexDate(ev.startDate);
+            ctx.fillStyle = palette.textLight;
+            ctx.font = `400 10px ${font}`;
+            const dateLines = wrapText(ctx, dateStr, maxTextW, 1);
+            dateLines.forEach((line, i) => {
+                ctx.fillText(line, textX, textY + i * 12);
+            });
+            textY += dateLines.length * 12 + 2;
 
             if (ev.description) {
                 ctx.fillStyle = palette.textMuted;
                 ctx.font = `400 10px ${font}`;
-                ctx.textAlign = "left";
-                ctx.textBaseline = "top";
-                const maxDescW = 200;
-                const descLines = wrapText(ctx, ev.description, maxDescW, 3);
+                const descLines = wrapText(ctx, ev.description, maxTextW, 2);
                 descLines.forEach((line, i) => {
-                    ctx.fillText(line, ev.x + 14, rowY + BAR_HEIGHT / 2 + 10 + i * 14);
+                    ctx.fillText(line, textX, textY + i * 12);
                 });
             }
         }
