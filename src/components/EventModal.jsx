@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Download, X } from "lucide-react";
+import { Download, X, Check } from "lucide-react";
 import { EMPTY_FLEXDATE, isFlexDateValid, flexAfter } from '../models/flexdate.js';
 import { Label, Input, Btn } from './ui/index.js';
 import { DateInput } from './DateInput.jsx';
 
-export function EventModal({ onSubmit, onClose, initial, palette }) {
+export function EventModal({ onSubmit, onClose, initial, palette, defaultColorIndex = 0 }) {
     const [form, setForm] = useState({
         title: initial?.title || "",
         startDate: initial?.startDate || { ...EMPTY_FLEXDATE },
@@ -12,6 +12,7 @@ export function EventModal({ onSubmit, onClose, initial, palette }) {
         description: initial?.description || "",
         image: initial?.image || null,
         hasEndDate: !!initial?.endDate,
+        colorIndex: initial?.colorIndex ?? defaultColorIndex,
     });
     const [errors, setErrors] = useState({});
 
@@ -48,6 +49,7 @@ export function EventModal({ onSubmit, onClose, initial, palette }) {
             endDate: form.hasEndDate && isFlexDateValid(form.endDate) ? form.endDate : null,
             description: form.description.trim() || null,
             image: form.image,
+            colorIndex: form.colorIndex,
         });
     };
 
@@ -78,6 +80,28 @@ export function EventModal({ onSubmit, onClose, initial, palette }) {
                             placeholder="Ex: Révolution française"
                         />
                         {errors.title && <p className="text-xs mt-1 text-red-500">{errors.title}</p>}
+                    </div>
+
+                    <div>
+                        <Label palette={palette}>Couleur</Label>
+                        <div className="flex gap-2 mt-1">
+                            {palette.eventColors.map((color, idx) => (
+                                <button
+                                    key={idx}
+                                    type="button"
+                                    onClick={() => setForm(p => ({ ...p, colorIndex: idx }))}
+                                    className="w-8 h-8 rounded-full cursor-pointer transition-all flex items-center justify-center"
+                                    style={{
+                                        background: color,
+                                        transform: form.colorIndex === idx ? 'scale(1.15)' : 'scale(1)',
+                                        boxShadow: form.colorIndex === idx ? `0 0 0 2px ${palette.surface}, 0 0 0 4px ${color}` : 'none',
+                                    }}
+                                    title={`Couleur ${idx + 1}`}
+                                >
+                                    {form.colorIndex === idx && <Check size={14} color={palette.surface} strokeWidth={3} />}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     <DateInput

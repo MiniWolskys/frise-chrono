@@ -224,6 +224,7 @@ export default function TimelineApp() {
                     initial={editingEvent}
                     onSubmit={handleEventSubmit}
                     onClose={closeModal}
+                    defaultColorIndex={events.length % palette.eventColors.length}
                 />
             )}
         </div>

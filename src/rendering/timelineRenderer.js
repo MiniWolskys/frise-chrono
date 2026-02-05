@@ -96,7 +96,8 @@ export function renderTimeline(ctx, W, H, config, events, palette, images, title
     const layout = computeEventLayout(events, dateToX);
 
     layout.forEach((ev) => {
-        const colorIdx = events.findIndex(e => e.id === ev.id) % palette.eventColors.length;
+        const eventIndex = events.findIndex(e => e.id === ev.id);
+        const colorIdx = ev.colorIndex ?? (eventIndex % palette.eventColors.length);
         const color = palette.eventColors[colorIdx];
         const rowY = axisY - 18 - (ev.row + 1) * ROW_HEIGHT + (ROW_HEIGHT - BAR_HEIGHT) / 2;
 

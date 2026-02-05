@@ -13,7 +13,8 @@ export function EventList({ events, palette, onEdit, onDelete }) {
     return (
         <div className="space-y-2">
             {events.map((ev, idx) => {
-                const color = palette.eventColors[idx % palette.eventColors.length];
+                const colorIndex = ev.colorIndex ?? (idx % palette.eventColors.length);
+                const color = palette.eventColors[colorIndex];
                 return (
                     <div
                         key={ev.id}

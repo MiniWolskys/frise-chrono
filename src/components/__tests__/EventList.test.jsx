@@ -157,4 +157,51 @@ describe('EventList', () => {
 
         expect(screen.getByText(/2020.*→.*2025/)).toBeInTheDocument();
     });
+
+    it('should use event colorIndex for border color', () => {
+        const events = [
+            {
+                id: '1',
+                title: 'Event with custom color',
+                startDate: { year: 2020, month: 1, day: 1, precision: 'year' },
+                colorIndex: 2,
+            },
+        ];
+
+        const { container } = render(
+            <EventList
+                events={events}
+                palette={mockPalette}
+                onEdit={() => {}}
+                onDelete={() => {}}
+            />
+        );
+
+        // The third color (#0000FF) should be used
+        const eventDiv = container.querySelector('[style*="border-left"]');
+        expect(eventDiv).toHaveStyle({ borderLeft: '3px solid #0000FF' });
+    });
+
+    it('should fallback to index-based color when colorIndex is not set', () => {
+        const events = [
+            {
+                id: '1',
+                title: 'Event without colorIndex',
+                startDate: { year: 2020, month: 1, day: 1, precision: 'year' },
+            },
+        ];
+
+        const { container } = render(
+            <EventList
+                events={events}
+                palette={mockPalette}
+                onEdit={() => {}}
+                onDelete={() => {}}
+            />
+        );
+
+        // First color (#FF0000) should be used (index 0)
+        const eventDiv = container.querySelector('[style*="border-left"]');
+        expect(eventDiv).toHaveStyle({ borderLeft: '3px solid #FF0000' });
+    });
 });
